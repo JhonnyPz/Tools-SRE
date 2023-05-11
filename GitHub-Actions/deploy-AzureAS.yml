@@ -1,0 +1,42 @@
+name: Deploy ASP.NET Core app to Azure Web App
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+    
+env:
+  AZURE_WEBAPP_NAME: appcicdtest  
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
+  DOTNET_VERSION: '7.0.x'
+  
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Cancel Previous Redundant Build
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      - name: dotnet build, test and publish
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+          dotnet test app.test/app.test.csproj
+          dotnet publish src/ -c Release -o '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
+      - name: deploy to azure web apps
+        if: ${{ github.event_name == 'push' }}
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'
