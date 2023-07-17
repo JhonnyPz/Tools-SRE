@@ -1,22 +1,27 @@
+name: Azure app services CI-CD
+
 trigger:
-- '*'
+  branches:
+    include: 
+      - main
+pr:
+  branches:
+    include:
+      - main
 
 variables:
   buildConfiguration: 'Release'
 
 stages:
-- stage: 'Build'
-  displayName: 'Build the web application'
+- stage: 'CI'
+  displayName: 'Continuous Integration'
+
   jobs: 
   - job: 'Build'
     displayName: 'Build job'
     pool:
-      vmImage: 'ubuntu-20.04'
-      demands:
-      - npm
-
+      vmImage: 'ubuntu-22.04'
     variables:
-      wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
       dotnetSdkVersion: '6.x'
 
     steps:
@@ -24,22 +29,7 @@ stages:
       displayName: 'Use .NET SDK $(dotnetSdkVersion)'
       inputs:
         version: '$(dotnetSdkVersion)'
-
-    - task: Npm@1
-      displayName: 'Run npm install'
-      inputs:
-        verbose: false
-
-    - script: './node_modules/.bin/node-sass $(wwwrootDir) --output $(wwwrootDir)'
-      displayName: 'Compile Sass assets'
-
-    - task: gulp@1
-      displayName: 'Run gulp tasks'
-
-    - script: 'echo "$(Build.DefinitionName), $(Build.BuildId), $(Build.BuildNumber)" > buildinfo.txt'
-      displayName: 'Write build info'
-      workingDirectory: $(wwwrootDir)
-
+    
     - task: DotNetCoreCLI@2
       displayName: 'Restore project dependencies'
       inputs:
@@ -65,25 +55,28 @@ stages:
     - publish: '$(Build.ArtifactStagingDirectory)'
       artifact: drop
 
-- stage: 'Deploy'
-  displayName: 'Deploy the web application'
+- stage: 'CD'
+  displayName: 'Continuous Deployment'
   dependsOn: Build
+
   jobs:
   - deployment: Deploy
     pool:
-      vmImage: 'ubuntu-20.04'
-    environment: dev
+      vmImage: 'ubuntu-22.04'
     variables:
-    - group: Release
+      WebAppName: 'webapp-cicd-example'
+    environment: dev
+
     strategy:
       runOnce:
         deploy:
           steps:
           - download: current
             artifact: drop
+            
           - task: AzureWebApp@1
-            displayName: 'Azure App Service Deploy: website'
+            displayName: 'Azure App Service Deploy'
             inputs:
-              azureSubscription: 'Resource Manager - Tailspin - Space Game'
+              azureSubscription: 'Azure service connection name'
               appName: '$(WebAppName)'
               package: '$(Pipeline.Workspace)/drop/$(buildConfiguration)/*.zip'
