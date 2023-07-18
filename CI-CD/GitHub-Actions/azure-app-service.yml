@@ -1,14 +1,13 @@
-name: Azure app services CI-CD
+name: CI-CD Azure app service
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-    types: [ "opened", "synchronize" ]
 
 env:
-  AZURE_WEBAPP_NAME: appcicdtest  
+  AZURE_WEBAPP_NAME: name-aps
   AZURE_WEBAPP_PACKAGE_PATH: '.'
   DOTNET_VERSION: '7.0.x'
   BUILD_CONFIG: 'Release'
@@ -24,20 +23,24 @@ jobs:
 
   build:
     runs-on: ubuntu-22.04
-    
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
       - name: Build
         run: dotnet build --configuration ${{ env.BUILD_CONFIG }}
+
       - name: Test
         run: dotnet test app.test/app.test.csproj
+
       - name: Publish
         run: dotnet publish src/ -c ${{ env.BUILD_CONFIG }} -o ${{ env.DOTNET_ROOT }}/myapp
+
       - uses: actions/upload-artifact@v3
         with:
           name: myapp
@@ -56,6 +59,7 @@ jobs:
         with:
           name: myapp
           path: myapp
+          
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
