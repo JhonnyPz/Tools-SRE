@@ -1,19 +1,18 @@
-name: CICD-AzureAppSer
+name: CI-CD Azure app service
 
 on:
   push:
-    branches: [main]
+    branches: [ "main" ]
   pull_request:
-    branches: [main]
-    types: [opened, synchronize]
+    branches: [ "main" ]
 
 env:
-  AZURE_WEBAPP_NAME: appcicdtest  
-  AZURE_WEBAPP_PACKAGE_PATH: "."
-  DOTNET_VERSION: "7.0.x"
+  AZURE_WEBAPP_NAME: name-aps
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
+  DOTNET_VERSION: '7.0.x'
+  BUILD_CONFIG: 'Release'
 
 jobs:
-
   avoid_reduncy:
     runs-on: ubuntu-22.04
     steps:
@@ -28,33 +27,39 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
       - uses: actions/setup-dotnet@v3
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
+
       - name: Build
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration ${{ env.BUILD_CONFIG }}
+
       - name: Test
         run: dotnet test app.test/app.test.csproj
+
       - name: Publish
-        run: dotnet publish src/ -c Release -o ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp
+        run: dotnet publish src/ -c ${{ env.BUILD_CONFIG }} -o ${{ env.DOTNET_ROOT }}/myapp
+
       - uses: actions/upload-artifact@v3
         with:
           name: myapp
-          path: ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
+          path: ${{ env.DOTNET_ROOT }}/myapp
     
   deploy:
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-22.04
     needs: build
-    #environment:
-      #name: "production"
-      #url: ${{ steps.deploy-to-webapp.outputs.url }}
+    environment:
+      name: 'dev'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     
     steps:
       - uses: actions/download-artifact@v3
         with:
           name: myapp
           path: myapp
+          
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
