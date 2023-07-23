@@ -1,0 +1,63 @@
+name: CI/CD Azure pipeline multistage with app services
+
+trigger:
+  branches:
+    include: 
+      - main
+pr:
+  branches:
+    include:
+      - main
+
+variables:
+  buildConfiguration: 'Release'
+  dotnetSdkVersion: '6.x'
+  branchDev: 'main'
+
+schedules:
+- cron: '0 8 * * *'
+  displayName: 'Deploy every day at 8 A.M.'
+  branches:
+    include:
+    - main
+  always: false 
+
+stages:
+- stage: 'Build'
+  displayName: 'Build the project'
+  - template: modules/build.yml
+    parameters:
+      buildConfiguration: '$(buildConfiguration)'
+      dotnetSdkVersion: '$(dotnetSdkVersion)'
+
+- stage: 'Dev'
+  displayName: 'Deploy to the dev environment'
+  dependsOn: Build
+  condition: and (succeeded(), eq(variables['Build.SourceBranchName'], variables['branchDev']), ne(variables['Build.Reason'], 'Schedule'))
+  jobs:
+  - template: modules/deploy.yml
+    parameters:
+      buildConfiguration: '$(buildConfiguration)'
+      environmentName: 'dev'
+      webAppName: 'WebAppNameDev'
+
+- stage: 'Test'
+  displayName: 'Deploy to the test environment'
+  dependsOn: Build
+  condition: eq(variables['Build.Reason'], 'Schedule')
+  jobs:
+  - template: modules/deploy.yml
+    parameters:
+      buildConfiguration: '$(buildConfiguration)'
+      environmentName: 'test'
+      webAppName: 'WebAppNameTest'
+
+- stage: 'Staging'
+  displayName: 'Deploy to the staging environment'
+  dependsOn: Test
+  jobs:
+  - template: modules/deploy.yml
+    parameters:
+      buildConfiguration: '$(buildConfiguration)'
+      environmentName: 'staging'
+      webAppName: 'WebAppNameSteging'

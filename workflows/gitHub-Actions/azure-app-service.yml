@@ -1,0 +1,68 @@
+name: CI/CD Azure app service
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  AZURE_WEBAPP_NAME: name-aps
+  AZURE_WEBAPP_PACKAGE_PATH: '.'
+  DOTNET_VERSION: '7.0.x'
+  BUILD_CONFIG: 'Release'
+
+jobs:
+  avoid_reduncy:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Cancel Previous Redundant Build
+        uses: styfle/cancel-workflow-action@0.9.1
+        with:
+          access_token: ${{ github.token }}
+
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Build
+        run: dotnet build --configuration ${{ env.BUILD_CONFIG }}
+
+      - name: Test
+        run: dotnet test app.test/app.test.csproj
+
+      - name: Publish
+        run: dotnet publish src/ -c ${{ env.BUILD_CONFIG }} -o ${{ env.DOTNET_ROOT }}/myapp
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: myapp
+          path: ${{ env.DOTNET_ROOT }}/myapp
+    
+  deploy:
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-22.04
+    needs: build
+    environment:
+      name: 'dev'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: myapp
+          path: myapp
+          
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          package: '${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/myapp'

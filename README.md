@@ -1,40 +1,58 @@
 # Tools-SRE
 
-Este repositorio contiene una colección de proyectos que utilizan diversas tecnologías, herramientas y configuraciones propias del rol de Site Reliability Engineering (SRE) para implementar y automatizar el flujo de trabajo de Integración Continua y Despliegue Continuo (CI/CD) en proyectos de desarrollo de software, siguiendo prácticas de DevOps.
+**This repository contains a collection of projects that use various technologies, tools, and configurations related to the Site Reliability Engineering (SRE) role to implement and automate the Continuous Integration and Continuous Delivery (CI/CD) workflow in software development projects, following DevOps practices.**
 
-## Proyectos incluidos
+## Included Projects
 
-En este repositorio encontrarás los siguientes proyectos y tecnologias:
+In this repository, you will find the following projects and technologies:
 
-### CI-CD
+### CI/CD Workflows
 
-- **Azure Pipelines**: Configuraciones y definiciones de tuberías de CI/CD para despliegues en Azure.
+- **[GitHub Actions](workflows/gitHub-Actions/)**: Basic workflows to implement CI/CD using *GitHub Actions.*
 
-- **GitHub Actions**: Flujos de trabajo para implementar CI/CD utilizando GitHub Actions.
+| Número | Proyecto | Tipo | Código |
+| --- | --- | --- | --- |
+| `01` | Azure App Services | CICD | [Ver](workflows/gitHub-Actions/azure-app-service.yml) |
+| `02` | Azure App Services with Docker | CICD | [Ver](workflows/gitHub-Actions/azure-app-service-docker.yml) |
+
+- **[Azure Pipelines](workflows/azure-Pipelines/)**: Advanced workflows to implement CI/CD using *Azure Pipelines.*
+
+| Número | Proyecto | Tipo | Código |
+| --- | --- | --- | --- |
+| `01` | Azure App Services | CICD | [Ver](workflows/azure-Pipelines/azure-pipelines.yml) |
+| `02` | Azure App Services Multistage | CICD | [Ver](workflows/azure-Pipelines/azure-multistage-pipelines.yml) |
 
 ### Docker
 
-- **app-dotnet**: Una aplicación de ejemplo basada en .NET Core preparada para ser empaquetada en un contenedor Docker.
+- **[app-dotnet](docker/app-dotnet/)**: A Dockerfile with specifications to package a *.NET* application and deployment in a local environmen with docker-compose.
 
-- **app-react**: Una aplicación de ejemplo creada con React lista para ser empaquetada en un contenedor Docker.
+- **[app-react](docker/app-react/)**: A Dockerfile with specifications to package a *React* application and deployment in a local environmen with docker-compose.
+
+| Número | Proyecto | Tipo | Código |
+| --- | --- | --- | --- |
+| `01` | App ASP.NET 7 | CICD | [Ver](docker/app-dotnet/) |
+| `02` | App React Vite | CICD | [Ver]() |
 
 ### Kubernetes
 
-- **Kubernetes**: Configuraciones para desplegar una infraestructura de Kubernetes en la nube.
+- **[minikube]()**: Configurations to deploy a Kubernetes infrastructure in the *On-premise and Cloud*
 
 ### Terraform
 
-- **Terraform**: Configuraciones y scripts para desplegar una infraestructura On-premise y Cloud
+- **[Azure](terraform/)**: Configurations and scripts to deploy an *Mircosoft Azure* infrastructure.
 
-### Monitor
+| Número | Proyecto | Tipo | Código |
+| --- | --- | --- | --- |
+| `01` | Azure App Services | IaC | [Ver](terraform/az-app-services/) |
 
-- **Proyecto de monitoreo**: Herramientas y scripts relacionados con la monitorización de aplicaciones y la infraestructura.
+### Monitoring
 
-## Instrucciones de uso
+- **[Monitoring Project]()**: Tools and scripts related to application and infrastructure monitoring.
 
-Para cada proyecto incluido, encontrarás instrucciones detalladas en su respectivo directorio. Asegúrate de seguir las guías proporcionadas para configurar y utilizar las herramientas correctamente.
+## Usage Instructions
 
-## Agradecimientos
+For each included project, you will find detailed instructions in their respective directories. Make sure to follow the provided guides to set up and use the tools correctly.
 
-¡Gracias por utilizar este repositorio y esperamos que te sea de ayuda en tu camino hacia la implementación efectiva de DevOps!
+## Acknowledgments
 
+Thank you for using this repository, and we hope it helps you on your journey towards effective DevOps implementation!
