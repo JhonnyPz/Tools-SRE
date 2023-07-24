@@ -52,6 +52,11 @@ stages:
       environmentName: 'test'
       webAppName: 'WebAppNameTest'
 
+  - template: modules/unit-test.yml
+    parameters:
+      buildConfiguration: '$(buildConfiguration)'
+      dotnetSdkVersion: '$(dotnetSdkVersion)'
+
 - stage: 'Staging'
   displayName: 'Deploy to the staging environment'
   dependsOn: Test

@@ -13,7 +13,6 @@ jobs:
     inputs:
       version: '${{ parameters.dotnetSdkVersion }}'
 
-  steps:
   - task: DotNetCoreCLI@2
     displayName: 'Restore project dependencies'
     inputs:
@@ -31,7 +30,7 @@ jobs:
     displayName: 'Publish the project - ${{ parameters.buildConfiguration }}'
     inputs:
       command: 'publish'
-      projects: '**/*.csproj'
+      projects: '$(System.DefaultWorkingDirectory)/**/app.csproj'
       publishWebProjects: false
       arguments: '--no-build --configuration ${{ parameters.buildConfiguration }} --output $(Build.ArtifactStagingDirectory)/${{ parameters.buildConfiguration }}'
       zipAfterPublish: true
