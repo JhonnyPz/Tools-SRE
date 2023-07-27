@@ -21,8 +21,20 @@ jobs:
           artifact: drop 
 
         - task: AzureWebApp@1
-          displayName: 'Azure App Service Deploy'
+          condition: ne(variables['Environment.Name'], 'staging')
+          displayName: 'Azure App Service Deploy Test'
           inputs:
             azureSubscription: 'Azure service connection - Name'
+            appName: '$(${{ parameters.appName }})'
+            package: '$(Pipeline.Workspace)/drop/${{ parameters.buildConfiguration }}/*.zip'
+        
+        - task: AzureWebApp@1
+          condition: eq(variables['Environment.Name'], 'staging')
+          displayName: 'Azure App Service Deploy Pre-production'
+          inputs:
+            azureSubscription: 'Azure service connection - Name'
+            deployToSlotOrASE: 'true'
+            resourceGroupName: 'Resource Group - Name'
+            slotName: 'swap'
             appName: '$(${{ parameters.appName }})'
             package: '$(Pipeline.Workspace)/drop/${{ parameters.buildConfiguration }}/*.zip'

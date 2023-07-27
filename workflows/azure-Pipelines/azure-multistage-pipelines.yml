@@ -68,3 +68,6 @@ stages:
       webAppName: 'WebAppNameSteging'
 
   - template: modules/load-test.yml
+
+  # Use the next task if you want to automate switch pre-production to production slot:
+  # - task: AzureAppServiceManage@0
