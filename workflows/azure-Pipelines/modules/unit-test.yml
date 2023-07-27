@@ -3,8 +3,9 @@ parameters:
   dotnetSdkVersion: '6.x'
 
 jobs:
-- job: 'RunUnitTests'
-  dependsOn: Deploy
+  - job: 'RunUnitTests'
+    dependsOn: Deploy
+    displayName: 'Run unit tests'
     pool:
       vmImage: 'windows-2019'
     variables:

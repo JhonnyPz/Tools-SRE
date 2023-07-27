@@ -66,3 +66,5 @@ stages:
       buildConfiguration: '$(buildConfiguration)'
       environmentName: 'staging'
       webAppName: 'WebAppNameSteging'
+
+  - template: modules/load-test.yml

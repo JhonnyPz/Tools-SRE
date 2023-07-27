@@ -23,7 +23,8 @@ In this repository, you will find the following projects and technologies:
 | `02` | Azure App Services Multistage | CICD | [Ver](workflows/azure-Pipelines/azure-multistage-pipelines.yml) |
 | `M01` | Module Build | CI| [Ver](workflows/azure-Pipelines/modules/build.yml) |
 | `M02` | Module Deploy | CD | [Ver](workflows/azure-Pipelines/modules/deploy.yml) |
-| `M03` | Module Unit Tests | CI | [Ver](workflows/azure-Pipelines/modules/unit-test.yml) |
+| `M03` | Module Unit Tests | CD | [Ver](workflows/azure-Pipelines/modules/unit-test.yml) |
+| `M04` | Module Load Tests | CD | [Ver](workflows/azure-Pipelines/modules/load-test.yml) |
 
 ### Docker
 
