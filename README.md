@@ -6,7 +6,8 @@
 
 In this repository, you will find the following projects and technologies:
 
-### CI/CD Workflows
+
+## CI/CD Workflows
 
 - **[GitHub Actions](workflows/gitHub-Actions/)**: Basic workflows to implement CI/CD using *GitHub Actions.*
 
@@ -14,6 +15,7 @@ In this repository, you will find the following projects and technologies:
 | --- | --- | --- | --- |
 | `01` | Azure App Services | CICD | [Ver](workflows/gitHub-Actions/azure-app-service.yml) |
 | `02` | Azure App Services with Docker | CICD | [Ver](workflows/gitHub-Actions/azure-app-service-docker.yml) |
+
 
 - **[Azure Pipelines](workflows/azure-Pipelines/)**: Advanced workflows to implement CI/CD using *Azure Pipelines.*
 
@@ -25,23 +27,28 @@ In this repository, you will find the following projects and technologies:
 | `M02` | Module Deploy | CD | [Ver](workflows/azure-Pipelines/modules/deploy.yml) |
 | `M03` | Module Unit Tests | CD | [Ver](workflows/azure-Pipelines/modules/unit-test.yml) |
 | `M04` | Module Load Tests | CD | [Ver](workflows/azure-Pipelines/modules/load-test.yml) |
+| `M05` | Module Functions | CD | [Ver](workflows/azure-Pipelines/modules/functions.yml) |
 
-### Docker
 
-- **[app-dotnet](docker/app-dotnet/)**: A Dockerfile with specifications to package a *.NET* application and deployment in a local environmen with docker-compose.
+## Docker
 
-- **[app-react](docker/app-react/)**: A Dockerfile with specifications to package a *React* application and deployment in a local environmen with docker-compose.
+- **[Dockerfile](docker/dockerfile/)**: Dockerfile
 
 | Número | Proyecto | Tipo | Código |
 | --- | --- | --- | --- |
-| `01` | App ASP.NET 7 | CICD | [Ver](docker/app-dotnet/) |
-| `02` | App React Vite | CICD | [Ver]() |
+| `01` | App ASP.NET 7 | IMG | [Ver](docker/dockerfile/app-dotnet.yml) |
+| `02` | App React Vite | IMG | [Ver]() |
 
-### Kubernetes
+
+- **[Dokcer-Compose](docker/dockerfile/)**: Docker compose
+
+
+## Kubernetes
 
 - **[minikube]()**: Configurations to deploy a Kubernetes infrastructure in the *On-premise and Cloud*
 
-### Terraform
+
+## Terraform
 
 - **[Azure](terraform/)**: Configurations and scripts to deploy an *Mircosoft Azure* infrastructure.
 
@@ -49,9 +56,11 @@ In this repository, you will find the following projects and technologies:
 | --- | --- | --- | --- |
 | `01` | Azure App Services | IaC | [Ver](terraform/az-app-services/) |
 
-### Monitoring
+
+## Monitoring
 
 - **[Monitoring Project]()**: Tools and scripts related to application and infrastructure monitoring.
+
 
 ## Usage Instructions
 
