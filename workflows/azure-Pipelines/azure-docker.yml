@@ -1,0 +1,55 @@
+name: CI/CD Azure pipeline multistage with app services
+
+trigger:
+  branches:
+    include: 
+      - main
+pr:
+  branches:
+    include:
+      - main
+
+variables:
+  webRepository: 'app'
+  tag: '$(Build.BuildId)'
+
+stages:
+- stage: 'Build'
+  displayName: 'Build and push'
+
+  jobs:  
+  - job: 'Build'
+    displayName: 'Build job'
+    pool:
+      vmImage: 'ubuntu-22.04'
+
+    steps:
+    - task: Docker@2
+      displayName: 'Build and push the image to container registry'
+      inputs:
+        command: buildAndPush
+        containerRegistry: 'Container Registry Connection'
+        dockerfile: '$(Build.SourcesDirectory)/Tailspin.SpaceGame.Web/Dockerfile'
+        buildContext: $(Build.Repository.LocalPath)
+        repository: $(webRepository)
+        tags: $(tag)
+
+- stage: 'Deploy'
+  displayName: 'Deploy the container'
+  dependsOn: Build
+
+  jobs:
+  - job: 'Deploy'
+    displayName: 'Deploy job'
+    pool:
+      vmImage: 'ubuntu-22.04'
+    variables:
+    - group: Release
+
+    steps:
+    - task: AzureWebAppContainer@1
+      inputs:
+       appName: $(WebAppName)
+       azureSubscription: 'Azure service connection - Name'
+       imageName: $(RegistryName)/$(webRepository):$(tag)
+        
