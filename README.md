@@ -57,6 +57,7 @@ In this repository, you will find the following projects and technologies:
 | `01` | Azure Virtual Machine Linux | IaC | [Ver](terraform/az-vm-linux/) |
 | `02` | Azure App Services | IaC | [Ver](terraform/az-app-services/) |
 | `03` | Azure App Functions | IaC | [Ver](terraform/az-app-functions/) |
+| `04` | Azure Container Registry | IaC | [Ver](terraform/az-container-registry/) |
 
 
 ## Monitoring
