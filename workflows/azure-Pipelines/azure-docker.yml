@@ -1,4 +1,4 @@
-name: CI/CD Azure pipeline multistage with app services
+name: CI/CD Azure pipeline with Azure Container Registry
 
 trigger:
   branches:
@@ -29,7 +29,7 @@ stages:
       inputs:
         command: buildAndPush
         containerRegistry: 'Container Registry Connection'
-        dockerfile: '$(Build.SourcesDirectory)/Tailspin.SpaceGame.Web/Dockerfile'
+        dockerfile: '$(Build.SourcesDirectory)/app/Dockerfile'
         buildContext: $(Build.Repository.LocalPath)
         repository: $(webRepository)
         tags: $(tag)

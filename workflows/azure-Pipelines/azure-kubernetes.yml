@@ -1,0 +1,100 @@
+name: CI/CD Azure pipeline with Azure Kubernetes Services
+
+trigger:
+  branches:
+    include: 
+      - main
+pr:
+  branches:
+    include:
+      - main
+
+variables:
+  webRepository: 'app'
+  apiRepository: 'api'
+  tag: '$(Build.BuildId)'
+  imagePullSecret: 'secret'
+
+stages:
+- stage: 'Build'
+  displayName: 'Build and push'
+
+  jobs:  
+  - job: 'Build'
+    displayName: 'Build job'
+    pool:
+      vmImage: 'ubuntu-20.04'
+
+    steps:
+    - task: Docker@2
+      displayName: 'Build and push the web image to container registry'
+      inputs:
+        command: buildAndPush
+        containerRegistry: 'Container Registry Connection'
+        dockerfile: '$(Build.SourcesDirectory)/app/Dockerfile'
+        buildContext: $(Build.Repository.LocalPath)
+        repository: $(webRepository)
+        tags: $(tag)
+
+    - task: Docker@2
+      displayName: 'Build and push the leaderboard image to container registry'
+      inputs:
+        command: buildAndPush
+        containerRegistry: 'Container Registry Connection'
+        dockerfile: '$(Build.SourcesDirectory)/api/Dockerfile'
+        buildContext: $(Build.Repository.LocalPath)
+        repository: $(apiRepository)
+        tags: $(tag)
+        
+    - publish: '$(Build.SourcesDirectory)/manifests'
+      artifact: manifests
+
+- stage: 'Deploy'
+  displayName: 'Deploy the containers'
+  dependsOn: Build
+
+  jobs:
+  - deployment: Deploy
+    displayName: Deploy
+    pool:
+      vmImage: 'ubuntu-20.04'
+    environment: 'dev'
+    variables:
+    - group: Release
+    strategy:
+      runOnce:
+        deploy:
+
+          steps:
+          - download: current
+            artifact: manifests
+        
+          - task: KubernetesManifest@1
+            displayName: Create imagePullSecret
+            inputs:
+                action: createSecret
+                connectionType: azureResourceManager
+                secretName: $(imagePullSecret)
+                dockerRegistryEndpoint: 'Container Registry Connection'
+                azureSubscriptionConnection: 'Kubernetes Cluster Connection'
+                azureResourceGroup: 'rg-name'
+                kubernetesCluster: 'aks-name'
+                namespace: 'default'
+        
+          - task: KubernetesManifest@1
+            displayName: Deploy to Kubernetes cluster
+            inputs:
+                action: deploy
+                connectionType: azureResourceManager
+                azureSubscriptionConnection: 'Kubernetes Cluster Connection'
+                azureResourceGroup: 'rg-name'
+                kubernetesCluster: 'aks-name'
+                namespace: 'default'
+                manifests: |
+                    $(Pipeline.Workspace)/manifests/deployment.yml
+                    $(Pipeline.Workspace)/manifests/service.yml
+                imagePullSecrets: |
+                    $(imagePullSecret)
+                containers: |
+                    $(RegistryName)/$(webRepository):$(tag)
+                    $(RegistryName)/$(apiRepository):$(tag)
