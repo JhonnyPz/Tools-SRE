@@ -125,6 +125,6 @@ resource "azurerm_linux_virtual_machine" "vm" {
     sku       = "22_04-lts-gen2"
     version   = "latest"
   }
-	# cat name-file.sh | base64 -w 0 >> file-base64.sh
+  # cat name-file.sh | base64 -w 0 >> file-base64.sh
   custom_data = file("./minikube-base64.sh")
 }
