@@ -11,7 +11,7 @@ In this repository, you will find the following projects and technologies:
 
 - **[GitHub Actions](workflows/gitHub-Actions/)**: Basic workflows to implement CI/CD using *GitHub Actions.*
 
-| Número | Proyecto | Tipo | Código |
+| Number | Project | Type | Code |
 | --- | --- | --- | --- |
 | `01` | Azure App Services | CICD | [Ver](workflows/gitHub-Actions/azure-app-service.yml) |
 | `02` | Azure App Services with Docker | CICD | [Ver](workflows/gitHub-Actions/azure-app-service-docker.yml) |
@@ -19,7 +19,7 @@ In this repository, you will find the following projects and technologies:
 
 - **[Azure Pipelines](workflows/azure-Pipelines/)**: Advanced workflows to implement CI/CD using *Azure Pipelines.*
 
-| Número | Proyecto | Tipo | Código |
+| Number | Project | Type | Code |
 | --- | --- | --- | --- |
 | `01` | Azure App Services | CICD | [Ver](workflows/azure-Pipelines/azure-pipelines.yml) |
 | `02` | Azure App Services Multistage | CICD | [Ver](workflows/azure-Pipelines/azure-multistage.yml) |
@@ -36,7 +36,7 @@ In this repository, you will find the following projects and technologies:
 
 - **[Dockerfile & Compose](docker/)**: Dockerfile
 
-| Número | Proyecto | Tipo | Código |
+| Number | Project | Type | Code |
 | --- | --- | --- | --- |
 | `01` | App ASP.NET 7 | IMG | [Ver](docker/app-dotnet/) |
 | `02` | App React Vite | IMG | [Ver]() |
@@ -51,7 +51,7 @@ In this repository, you will find the following projects and technologies:
 
 - **[Azure](terraform/)**: Configurations and scripts to deploy an *Mircosoft Azure* infrastructure.
 
-| Número | Proyecto | Tipo | Código |
+| Number | Project | Type | Code |
 | --- | --- | --- | --- |
 | `01` | Azure Virtual Machine Linux | IaC | [Ver](terraform/az-vm-linux/) |
 | `01.1` | Azure Virtual Machine Minikube | IaC | [Ver](terraform/az-vm-minikube/) |
