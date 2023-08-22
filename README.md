@@ -34,15 +34,12 @@ In this repository, you will find the following projects and technologies:
 
 ## Docker
 
-- **[Dockerfile](docker/)**: Dockerfile
+- **[Dockerfile & Compose](docker/)**: Dockerfile
 
 | Número | Proyecto | Tipo | Código |
 | --- | --- | --- | --- |
-| `01` | App ASP.NET 7 | IMG | [Ver](docker/app-dotnet/Dockerfile) |
+| `01` | App ASP.NET 7 | IMG | [Ver](docker/app-dotnet/) |
 | `02` | App React Vite | IMG | [Ver]() |
-
-
-- **[Dokcer-Compose](docker/docker-compose/)**: Docker compose
 
 
 ## Kubernetes
