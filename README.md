@@ -54,6 +54,7 @@ In this repository, you will find the following projects and technologies:
 | Número | Proyecto | Tipo | Código |
 | --- | --- | --- | --- |
 | `01` | Azure Virtual Machine Linux | IaC | [Ver](terraform/az-vm-linux/) |
+| `01.1` | Azure Virtual Machine Minikube | IaC | [Ver](terraform/az-vm-minikube/) |
 | `02` | Azure App Services | IaC | [Ver](terraform/az-app-services/) |
 | `03` | Azure App Functions | IaC | [Ver](terraform/az-app-functions/) |
 | `04` | Azure Container Registry | IaC | [Ver](terraform/az-container-registry/) |
