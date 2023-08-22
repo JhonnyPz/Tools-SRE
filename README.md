@@ -44,7 +44,7 @@ In this repository, you will find the following projects and technologies:
 
 ## Kubernetes
 
-- **[minikube]()**: Configurations to deploy a Kubernetes infrastructure in the *On-premise and Cloud*
+- **[Kubernetes On-premises](kubernetes/)**: Manifest files are needed to deploy a Kubernetes infrastructure on-premises.
 
 
 ## Terraform

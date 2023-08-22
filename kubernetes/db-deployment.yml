@@ -1,0 +1,63 @@
+# DB deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: db
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: db-secret
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: db-secret
+          ports:
+            - containerPort: 5432
+              name: postgres
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          volumeMounts:
+            - name: db-persistent-storge
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: db-persistent-storge
+          persistentVolumeClaim:
+            claimName: db-pv-claim
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: dev
+spec:
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  selector:
+    app: db
+  type: NodePort

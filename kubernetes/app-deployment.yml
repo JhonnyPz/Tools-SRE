@@ -1,0 +1,70 @@
+# App deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: proxy
+          image: nginx:1.24-alpine
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+        - name: app
+          image: jhonnypz/app:dev
+          ports:
+            - containerPort: 3000
+          envFrom:
+            - secretRef:
+                name: app-secret
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: proxy-configmap
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app
+  namespace: dev
+spec:
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: app
+  type: NodePort
