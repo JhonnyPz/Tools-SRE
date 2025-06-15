@@ -22,3 +22,9 @@ variable "admin_password" {
   default     = "P@ssw0rd1234!"
   sensitive   = true
 }
+
+variable "private_ip_address" {
+  description = "Private IP address for the VM Windows server AD"
+  type        = string
+  default     = "10.0.1.5"
+}

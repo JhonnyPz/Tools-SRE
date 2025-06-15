@@ -88,8 +88,7 @@ resource "azurerm_network_interface" "nic-windows-sv" {
     name                          = "nic-public"
     subnet_id                     = tolist(azurerm_virtual_network.vnet.subnet)[0].id
     private_ip_address_allocation = "Static"
-    private_ip_address            = "10.0.1.5"
-    public_ip_address_id          = azurerm_public_ip.public-ip-windows-sv.id
+    private_ip_address            = var.private_ip_address
   }
 
   tags = {
@@ -98,8 +97,56 @@ resource "azurerm_network_interface" "nic-windows-sv" {
   }
 }
 
-resource "azurerm_public_ip" "public-ip-windows-sv" {
-  name                = "public-ip-windows-sv-${var.name}"
+resource "azurerm_windows_virtual_machine" "vm-windows-client" {
+  name                = "vm-windows-sv-${var.name}-client"
+  computer_name       = "VM01GU"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  size                = "Standard_B2as_v2"
+  admin_username      = var.admin_username
+  admin_password      = var.admin_password
+  network_interface_ids = [
+    azurerm_network_interface.nic-windows-client.id,
+  ]
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "StandardSSD_LRS"
+  }
+
+  source_image_reference {
+    publisher = "microsoftwindowsdesktop"
+    offer     = "windows-11"
+    sku       = "win11-23h2-ent"
+    version   = "latest"
+  }
+
+  tags = {
+    environment = "Production"
+    created_by  = "Terraform"
+  }
+}
+
+resource "azurerm_network_interface" "nic-windows-client" {
+  name                = "nic-windows-client-${var.name}"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                          = "nic-public"
+    subnet_id                     = tolist(azurerm_virtual_network.vnet.subnet)[0].id
+    private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.public-ip-windows-client.id
+  }
+
+  tags = {
+    environment = "Production"
+    created_by  = "Terraform"
+  }
+}
+
+resource "azurerm_public_ip" "public-ip-windows-client" {
+  name                = "public-ip-windows-client-${var.name}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"

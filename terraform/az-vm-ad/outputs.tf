@@ -19,12 +19,17 @@ output "admin_password" {
   sensitive   = true
 }
 
-output "vm_private_ip" {
+output "vm_private_ip_sv" {
   description = "Private IP address of the VM Widnows Server Adctive Directory"
   value       = azurerm_network_interface.nic-windows-sv.private_ip_address
 }
 
-output "public-ip-windows-sv" {
+output "vm_private_ip_client" {
+  description = "Private IP address of the VM Widnows Server Adctive Directory"
+  value       = azurerm_network_interface.nic-windows-client.private_ip_address
+}
+
+output "public_ip_windows_client" {
   description = "Public IP address of the VM Widnows Server Adctive Directory"
-  value       = azurerm_public_ip.public-ip-windows-sv.ip_address
+  value       = azurerm_public_ip.public-ip-windows-client.ip_address
 }
