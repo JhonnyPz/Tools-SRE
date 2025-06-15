@@ -16,8 +16,20 @@ resource "azurerm_virtual_network" "vnet" {
 
   subnet {
     name             = "subnet-public-1"
-    address_prefixes = ["10.0.1.0/24"]
+    address_prefixes = ["10.0.10.0/24"]
     security_group   = azurerm_network_security_group.nsg.id
+  }
+
+  subnet {
+    name             = "subnet-public-2"
+    address_prefixes = ["10.0.20.0/24"]
+    security_group   = azurerm_network_security_group.nsg.id
+  }
+
+  subnet {
+    name             = "AzureBastionSubnet"
+    address_prefixes = ["10.0.5.0/26"]
+    # security_group   = azurerm_network_security_group.nsg.id
   }
 
   tags = {
@@ -31,17 +43,17 @@ resource "azurerm_network_security_group" "nsg" {
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
 
-  security_rule {
-    name                       = "AllowAny-RDP-AnyInbound"
-    priority                   = 1000
-    direction                  = "Inbound"
-    access                     = "Allow"
-    protocol                   = "Tcp"
-    source_port_range          = "*"
-    destination_port_range     = 3389
-    source_address_prefix      = "*"
-    destination_address_prefix = "*"
-  }
+  # security_rule {
+  #   name                       = "AllowAny-RDP-AnyInbound"
+  #   priority                   = 1000
+  #   direction                  = "Inbound"
+  #   access                     = "Allow"
+  #   protocol                   = "Tcp"
+  #   source_port_range          = "*"
+  #   destination_port_range     = 3389
+  #   source_address_prefix      = "*"
+  #   destination_address_prefix = "*"
+  # }
 
   tags = {
     environment = "Production"
@@ -134,9 +146,8 @@ resource "azurerm_network_interface" "nic-windows-client" {
 
   ip_configuration {
     name                          = "nic-public"
-    subnet_id                     = tolist(azurerm_virtual_network.vnet.subnet)[0].id
+    subnet_id                     = tolist(azurerm_virtual_network.vnet.subnet)[1].id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.public-ip-windows-client.id
   }
 
   tags = {
@@ -145,11 +156,31 @@ resource "azurerm_network_interface" "nic-windows-client" {
   }
 }
 
-resource "azurerm_public_ip" "public-ip-windows-client" {
-  name                = "public-ip-windows-client-${var.name}"
+resource "azurerm_bastion_host" "bastion" {
+  name                = "bastion-${var.name}"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+
+  ip_configuration {
+    name                 = "configuration"
+    subnet_id            = tolist(azurerm_virtual_network.vnet.subnet)[2].id
+    public_ip_address_id = azurerm_public_ip.public-ip-bastion.id
+  }
+
+  tags = {
+    environment = "Production"
+    created_by  = "Terraform"
+  }
+
+  depends_on = [azurerm_virtual_network.vnet]
+}
+
+resource "azurerm_public_ip" "public-ip-bastion" {
+  name                = "public-ip-bastion-${var.name}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
+  sku                 = "Standard"
 
   lifecycle {
     create_before_destroy = true

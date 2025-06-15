@@ -29,7 +29,7 @@ output "vm_private_ip_client" {
   value       = azurerm_network_interface.nic-windows-client.private_ip_address
 }
 
-output "public_ip_windows_client" {
-  description = "Public IP address of the VM Widnows Server Adctive Directory"
-  value       = azurerm_public_ip.public-ip-windows-client.ip_address
+output "public_ip_bastion" {
+  description = "Public IP address of the Bastion Host"
+  value       = azurerm_public_ip.public-ip-bastion.ip_address
 }
