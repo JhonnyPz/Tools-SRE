@@ -66,7 +66,7 @@ resource "azurerm_windows_virtual_machine" "vm-windows-sv" {
   computer_name       = "VM01DC"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
-  size                = "Standard_F2s_v2"
+  size                = "Standard_D2s_v3"
   admin_username      = var.admin_username
   admin_password      = var.admin_password
   network_interface_ids = [
@@ -81,7 +81,7 @@ resource "azurerm_windows_virtual_machine" "vm-windows-sv" {
   source_image_reference {
     publisher = "microsoftwindowsserver"
     offer     = "windowsserver"
-    sku       = "2019-datacenter"
+    sku       = "2025-datacenter-azure-edition-smalldisk"
     version   = "latest"
   }
 
@@ -129,7 +129,7 @@ resource "azurerm_windows_virtual_machine" "vm-windows-client" {
   source_image_reference {
     publisher = "microsoftwindowsdesktop"
     offer     = "windows-11"
-    sku       = "win11-23h2-ent"
+    sku       = "win11-24h2-entn"
     version   = "latest"
   }
 
