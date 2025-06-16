@@ -69,6 +69,7 @@ resource "azurerm_windows_virtual_machine" "vm-windows-sv" {
   size                = "Standard_D2s_v3"
   admin_username      = var.admin_username
   admin_password      = var.admin_password
+
   network_interface_ids = [
     azurerm_network_interface.nic-windows-sv.id,
   ]
@@ -84,6 +85,8 @@ resource "azurerm_windows_virtual_machine" "vm-windows-sv" {
     sku       = "2025-datacenter-azure-edition-smalldisk"
     version   = "latest"
   }
+
+  patch_mode = "AutomaticByPlatform"
 
   tags = {
     environment = "Production"
@@ -171,8 +174,6 @@ resource "azurerm_bastion_host" "bastion" {
     environment = "Production"
     created_by  = "Terraform"
   }
-
-  depends_on = [azurerm_virtual_network.vnet]
 }
 
 resource "azurerm_public_ip" "public-ip-bastion" {
