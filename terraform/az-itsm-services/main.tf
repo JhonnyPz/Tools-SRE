@@ -1,12 +1,12 @@
 resource "azurerm_resource_group" "rg" {
-  name     = upper("TF-RG-${var.name}")
+  name     = upper("TF-RG-${var.prefix}-${var.tags["environment"]}")
   location = var.location
 
   tags = var.tags
 }
 
 resource "azurerm_virtual_network" "vnet" {
-  name                = "vnet-${var.name}-${var.tags["environment"]}"
+  name                = "vnet-${var.prefix}-${var.tags["environment"]}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   address_space       = ["10.0.0.0/16"]
@@ -25,7 +25,7 @@ resource "azurerm_virtual_network" "vnet" {
 
   subnet {
     name             = "subnet-private-1"
-    address_prefixes = ["10.0.15.0/24"]
+    address_prefixes = ["10.0.30.0/24"]
     security_group   = azurerm_network_security_group.nsg.id
   }
 
@@ -33,7 +33,7 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 resource "azurerm_network_security_group" "nsg" {
-  name                = "nsg-${var.name}-${var.tags["environment"]}"
+  name                = "nsg-${var.prefix}-${var.tags["environment"]}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -80,7 +80,7 @@ resource "azurerm_network_security_group" "nsg" {
     access                     = "Allow"
     protocol                   = "Tcp"
     source_port_range          = "*"
-    destination_port_ranges    = [8020, 8080, 8443, 8027, 8444]
+    destination_port_ranges    = [8020, 8080, 8443, 8027, 8442]
     source_address_prefix      = "*"
     destination_address_prefix = "*"
   }
@@ -89,7 +89,8 @@ resource "azurerm_network_security_group" "nsg" {
 }
 
 resource "azurerm_network_interface" "nic-linux-sv" {
-  name                = "nic-linux-sv-${var.name}"
+  count               = var.enable_sdp ? 1 : 0
+  name                = "nic-linux-sv-${var.prefix}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
 
@@ -98,25 +99,29 @@ resource "azurerm_network_interface" "nic-linux-sv" {
     subnet_id                     = tolist(azurerm_virtual_network.vnet.subnet)[0].id
     private_ip_address_allocation = "Static"
     private_ip_address            = "10.0.10.4"
-    public_ip_address_id          = azurerm_public_ip.public-ip-linux-sv.id
+    public_ip_address_id          = azurerm_public_ip.public-ip-linux-sv[0].id
   }
 
   tags = var.tags
 }
 
 resource "azurerm_linux_virtual_machine" "vm-linux-sv" {
-  name                = "vm-linux-${var.name}-${var.tags["environment"]}"
+  count               = var.enable_sdp ? 1 : 0
+  name                = "vm-linux-${var.prefix}-${var.tags["environment"]}"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  computer_name       = upper("LNX01${var.name}")
+  computer_name       = upper("LNX01${var.prefix}")
   size                = "Standard_B2as_v2"
 
   admin_username                  = var.admin_username
   admin_password                  = var.admin_password
   disable_password_authentication = false
 
+  allow_extension_operations = true
+  provision_vm_agent         = true
+
   network_interface_ids = [
-    azurerm_network_interface.nic-linux-sv.id,
+    azurerm_network_interface.nic-linux-sv[0].id,
   ]
 
   # admin_ssh_key {
@@ -139,32 +144,37 @@ resource "azurerm_linux_virtual_machine" "vm-linux-sv" {
 }
 
 resource "azurerm_network_interface" "nic-windows-sv" {
-  name                = "nic-windows-sv-${var.name}"
+  count               = var.enable_endpointcentral || var.enable_analytics ? 1 : 0
+  name                = "nic-windows-sv-${var.prefix}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
     name                          = "nic-public"
-    subnet_id                     = tolist(azurerm_virtual_network.vnet.subnet)[2].id
+    subnet_id                     = tolist(azurerm_virtual_network.vnet.subnet)[1].id
     private_ip_address_allocation = "Static"
     private_ip_address            = "10.0.20.4"
-    public_ip_address_id          = azurerm_public_ip.public-ip-windows-sv.id
+    public_ip_address_id          = azurerm_public_ip.public-ip-windows-sv[0].id
   }
 
   tags = var.tags
 }
 
 resource "azurerm_windows_virtual_machine" "vm-windows-sv" {
-  name                = "vm-windows-${var.name}-${var.tags["environment"]}"
+  count               = var.enable_endpointcentral || var.enable_analytics ? 1 : 0
+  name                = "vm-windows-${var.prefix}-${var.tags["environment"]}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
-  computer_name       = upper("WS01${var.name}")
+  computer_name       = upper("WS01${var.prefix}")
   size                = "Standard_B2as_v2"
   admin_username      = var.admin_username
   admin_password      = var.admin_password
 
+  allow_extension_operations = true
+  provision_vm_agent         = true
+
   network_interface_ids = [
-    azurerm_network_interface.nic-windows-sv.id,
+    azurerm_network_interface.nic-windows-sv[0].id,
   ]
 
   os_disk {
@@ -185,31 +195,36 @@ resource "azurerm_windows_virtual_machine" "vm-windows-sv" {
 }
 
 resource "azurerm_network_interface" "nic-windows-db" {
-  name                = "nic-windows-db-${var.name}"
+  count               = var.enable_mssql ? 1 : 0
+  name                = "nic-windows-db-${var.prefix}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
     name                          = "nic-private"
-    subnet_id                     = tolist(azurerm_virtual_network.vnet.subnet)[1].id
+    subnet_id                     = tolist(azurerm_virtual_network.vnet.subnet)[2].id
     private_ip_address_allocation = "Static"
-    private_ip_address            = "10.0.15.4"
+    private_ip_address            = "10.0.30.4"
   }
 
   tags = var.tags
 }
 
 resource "azurerm_windows_virtual_machine" "vm-windows-db" {
-  name                = "vm-windows-db-${var.name}-${var.tags["environment"]}"
+  count               = var.enable_mssql ? 1 : 0
+  name                = "vm-windows-db-${var.prefix}-${var.tags["environment"]}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
-  computer_name       = upper("WSDB01${var.name}")
+  computer_name       = upper("WSDB01${var.prefix}")
   size                = "Standard_B2as_v2"
   admin_username      = var.admin_username
   admin_password      = var.admin_password
 
+  allow_extension_operations = true
+  provision_vm_agent         = true
+
   network_interface_ids = [
-    azurerm_network_interface.nic-windows-db.id,
+    azurerm_network_interface.nic-windows-db[0].id,
   ]
 
   os_disk {
@@ -230,7 +245,8 @@ resource "azurerm_windows_virtual_machine" "vm-windows-db" {
 
 
 resource "azurerm_public_ip" "public-ip-linux-sv" {
-  name                = "pip-lnx-${var.name}-${var.tags["environment"]}"
+  count               = var.enable_sdp ? 1 : 0
+  name                = "pip-lnx-${var.prefix}-${var.tags["environment"]}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
@@ -244,7 +260,8 @@ resource "azurerm_public_ip" "public-ip-linux-sv" {
 }
 
 resource "azurerm_public_ip" "public-ip-windows-sv" {
-  name                = "pip-ws-${var.name}-${var.tags["environment"]}"
+  count               = var.enable_endpointcentral || var.enable_analytics ? 1 : 0
+  name                = "pip-ws-${var.prefix}-${var.tags["environment"]}"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
@@ -256,3 +273,21 @@ resource "azurerm_public_ip" "public-ip-windows-sv" {
 
   tags = var.tags
 }
+
+# resource "azurerm_virtual_machine_extension" "linux-vm-extension" {
+#   count                = var.enable_sdp ? 1 : 0
+#   name                 = "linux-vm-extension-${var.prefix}"
+#   virtual_machine_id   = azurerm_linux_virtual_machine.vm-linux-sv[0].id
+#   publisher            = "Microsoft.Azure.Extensions"
+#   type                 = "CustomScript"
+#   type_handler_version = "2.0"
+
+#   settings = <<SETTINGS
+#     {
+#   "commandToExecute": "cd /opt && wget https://archives.manageengine.com/service-desk/14980/ManageEngine_ServiceDesk_Plus.bin"
+#     }
+#   SETTINGS
+
+
+#   tags = var.tags
+# }
