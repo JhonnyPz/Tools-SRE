@@ -12,3 +12,7 @@ provider "azurerm" {
 
   }
 }
+
+provider "random" {
+
+}

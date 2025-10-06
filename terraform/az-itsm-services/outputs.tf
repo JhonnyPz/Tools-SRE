@@ -43,3 +43,13 @@ output "private_ip_windows_db" {
   description = "Private IP address of the Windows DB VM"
   value       = var.enable_mssql ? azurerm_network_interface.nic-windows-db[0].private_ip_address : null
 }
+
+output "fqdn_linux" {
+  description = "FQDN of the Linux VM"
+  value       = var.enable_sdp ? azurerm_public_ip.public-ip-linux-sv[0].fqdn : null
+}
+
+output "fqdn_windows" {
+  description = "FQDN of the Windows VM"
+  value       = var.enable_endpointcentral ? azurerm_public_ip.public-ip-windows-sv[0].fqdn : null
+}

@@ -1,3 +1,7 @@
+resource "random_id" "suffix" {
+  byte_length = 4
+}
+
 resource "azurerm_resource_group" "rg" {
   name     = upper("TF-RG-${var.prefix}-${var.tags["environment"]}")
   location = var.location
@@ -51,7 +55,7 @@ resource "azurerm_network_security_group" "nsg" {
 
   security_rule {
     name                       = "AllowAny-SSH-AnyInbound"
-    priority                   = 1002
+    priority                   = 1001
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -63,7 +67,7 @@ resource "azurerm_network_security_group" "nsg" {
 
   security_rule {
     name                       = "AllowAny-MSSQL-AnyInbound"
-    priority                   = 1003
+    priority                   = 1002
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -74,8 +78,20 @@ resource "azurerm_network_security_group" "nsg" {
   }
 
   security_rule {
+    name                       = "AlloyAny-HTTPS-AnyInbound"
+    priority                   = 1003
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = 443
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
     name                       = "AllowAny-ITSM-AnyInbound"
-    priority                   = 1001
+    priority                   = 1004
     direction                  = "Inbound"
     access                     = "Allow"
     protocol                   = "Tcp"
@@ -132,6 +148,7 @@ resource "azurerm_linux_virtual_machine" "vm-linux-sv" {
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "Standard_LRS"
+    disk_size_gb         = 32
   }
 
   source_image_reference {
@@ -180,6 +197,7 @@ resource "azurerm_windows_virtual_machine" "vm-windows-sv" {
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "StandardSSD_LRS"
+    disk_size_gb         = 32
   }
 
   source_image_reference {
@@ -230,6 +248,7 @@ resource "azurerm_windows_virtual_machine" "vm-windows-db" {
   os_disk {
     caching              = "ReadWrite"
     storage_account_type = "StandardSSD_LRS"
+    disk_size_gb         = 127
   }
 
   source_image_reference {
@@ -242,7 +261,15 @@ resource "azurerm_windows_virtual_machine" "vm-windows-db" {
   tags = var.tags
 }
 
-
+resource "azurerm_mssql_virtual_machine" "example" {
+  virtual_machine_id               = azurerm_windows_virtual_machine.vm-windows-db[0].id
+  sql_license_type                 = "PAYG"
+  r_services_enabled               = true
+  sql_connectivity_port            = 1433
+  sql_connectivity_type            = "PRIVATE"
+  sql_connectivity_update_password = var.admin_password
+  sql_connectivity_update_username = "sdp"
+}
 
 resource "azurerm_public_ip" "public-ip-linux-sv" {
   count               = var.enable_sdp ? 1 : 0
@@ -251,6 +278,7 @@ resource "azurerm_public_ip" "public-ip-linux-sv" {
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
+  domain_name_label   = "lnxitsm-${random_id.suffix.hex}"
 
   lifecycle {
     create_before_destroy = true
@@ -266,6 +294,7 @@ resource "azurerm_public_ip" "public-ip-windows-sv" {
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
+  domain_name_label   = "wdsitsm-${random_id.suffix.hex}"
 
   lifecycle {
     create_before_destroy = true

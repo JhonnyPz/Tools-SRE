@@ -6,9 +6,9 @@ tags = {
 
 prefix                 = "itsm"
 location               = "East US 2"
-admin_username         = "itsmadmin"
+admin_username         = "azure"
 admin_password         = "ITSM@dmin123!"
 enable_sdp             = true
 enable_endpointcentral = true
 enable_analytics       = false
-enable_mssql           = false
+enable_mssql           = true
