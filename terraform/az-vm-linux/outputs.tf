@@ -1,26 +1,47 @@
-# Outputs resource Group
-output "rg-name" {
-  value       = azurerm_resource_group.rg.name
-  description = "Name resource group"
+# Outputs Resource Group
+output "rg_name" {
+  description = "Name of the resource group"
+  value       = module.rg.name
 }
 
-output "rg-location" {
-  value       = azurerm_resource_group.rg.location
-  description = "Region of resources"
+output "rg_location" {
+  description = "Region of the resource group"
+  value       = module.rg.location
+}
+
+# Outputs Virtual Network and NSG
+output "vnet_name" {
+  description = "Name of the virtual network"
+  value       = module.vnet.name
+}
+
+output "subnet_name" {
+  description = "Name of the subnet"
+  value       = module.vnet.subnet_name
+}
+
+output "nsg_name" {
+  description = "Name of the network security group"
+  value       = module.nsg_ssh.name
 }
 
 # Outputs Virtual Machine
-output "vm-name" {
-  value       = azurerm_linux_virtual_machine.vm.name
-  description = "Name Virtual Machine"
+output "vm_name" {
+  description = "Name of the virtual machine"
+  value       = module.vm.name
 }
 
-output "vm-username" {
-  value       = azurerm_linux_virtual_machine.vm.admin_username
-  description = "User name"
+output "vm_public_ip" {
+  description = "Public IP address of the virtual machine"
+  value       = module.vm.public_ip_address
 }
 
-output "vm-ip"{
-  value       = azurerm_linux_virtual_machine.vm.public_ip_address
-  description = "Public IP"
+output "vm_private_ip" {
+  description = "Private IP address of the virtual machine"
+  value       = module.vm.private_ip_address
+}
+
+output "vm_username" {
+  description = "Admin username of the virtual machine"
+  value       = var.admin_username
 }
