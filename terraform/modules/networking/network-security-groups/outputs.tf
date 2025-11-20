@@ -1,14 +1,14 @@
-output "nsg_id" {
+output "id" {
   description = "The ID of the Network Security Group"
-  value       = azurerm_network_security_group.nsg.id
+  value       = azurerm_network_security_group.nsg-ssh.id
 }
 
-output "nsg_name" {
+output "name" {
   description = "The name of the Network Security Group"
-  value       = azurerm_network_security_group.nsg.name
+  value       = azurerm_network_security_group.nsg-ssh.name
 }
 
-output "nsg_location" {
+output "location" {
   description = "The location of the Network Security Group"
-  value       = azurerm_network_security_group.nsg.location
+  value       = azurerm_network_security_group.nsg-ssh.location
 }

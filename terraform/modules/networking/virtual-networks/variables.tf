@@ -1,4 +1,4 @@
-variable "name" {
+variable "vnet_name" {
   description = "The name of the Azure Virtual Network"
   type        = string
 }

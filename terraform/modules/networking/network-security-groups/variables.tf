@@ -8,6 +8,16 @@ variable "destination_address_prefix" {
   type        = string
 }
 
+variable "enable_nic_nsg_association" {
+  description = "Boolean to enable or disable the association of NSG with NIC"
+  type        = bool
+}
+
+variable "network_interface_id" {
+  description = "The ID of the Network Interface to associate with the NSG"
+  type        = string
+}
+
 variable "location" {
   description = "The Azure region where the Network Security Group will be deployed"
   type        = string
